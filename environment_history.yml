@@ -1,0 +1,9 @@
+name: deepl
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - matplotlib
+  - notebook
+  - pandas
+prefix: D:\Prgm\Anaconda\envs\deepl
