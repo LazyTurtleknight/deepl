@@ -6,4 +6,8 @@ dependencies:
   - matplotlib
   - notebook
   - pandas
+  - albumentations
+  - tensorboard
+  - pytorch
+  - pytorch-model-summary
 prefix: D:\Prgm\Anaconda\envs\deepl
