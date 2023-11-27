@@ -2,6 +2,9 @@
 import cv2
 import pandas as pd
 import os
+import torch
+import numpy as np
+import matplotlib.pyplot as plt
 
 from torch.utils.data import Dataset
 
@@ -11,6 +14,8 @@ class SatelliteSet(Dataset):
     def __init__(self,
                  # mpandas dataframe loaded with a meta data csv containing image file names
                  meta_data, 
+                 # Class dictionary
+                 class_dict,
                  # directory where the data is stored
                  data_dir, 
                  # albumentations transform
@@ -18,6 +23,7 @@ class SatelliteSet(Dataset):
         self.meta_data = meta_data
         self.data_dir = data_dir
         self.transform = transform
+        self.class_dict = class_dict
 
     # number of samples in dataset
     def __len__(self):
@@ -35,8 +41,9 @@ class SatelliteSet(Dataset):
             # In the transform from albumentation we pass both the image and the mask together to make sure
             # they undergo the same transformation, e.g. this ensure both have the same random crop
             transformed = self.transform(image = image, mask = mask)
-            image = transformed['image']
-            mask = transformed['mask']
+            image = transformed['image'].to(torch.float32)
+            mask = transformed['mask'].to(torch.float32)
+            mask = torch.tensor(np.apply_along_axis(lambda k: self.class_dict[tuple(k)], 2, mask))
 
         return image, mask
     

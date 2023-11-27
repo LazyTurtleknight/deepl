@@ -28,7 +28,7 @@ class TwoConv(nn.Module):
 # UNet encoder block. Performs two convolutions and max pooling.
 class ConvPool(TwoConv):
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding='same'):
-        super().__init__(in_channels, out_channels, kernel_size=3, stride=1, padding='same')
+        super().__init__(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding)
         self.max = nn.MaxPool2d(2, 2)
 
     def forward(self, x):
@@ -39,7 +39,7 @@ class ConvPool(TwoConv):
 # UNet decoder block. Performs upsampling, concatenation of the two inputs and two convolutions.
 class UpConv(TwoConv):
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding='same'):
-        super().__init__(in_channels, out_channels, kernel_size=3, stride=1, padding='same')
+        super().__init__(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding)
         # We may use different upsampling method here.
         self.upsampling = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=2, stride=2)
 
