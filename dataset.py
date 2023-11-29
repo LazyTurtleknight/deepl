@@ -34,10 +34,12 @@ class SatelliteSet(Dataset):
         # Read image
         img_path = os.path.join(self.data_dir, self.meta_data.iloc[idx]['sat_image_path'])
         image = cv2.imread(img_path)
+        # Change order of colors from BGR to RGB
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         # Read target mask
         mask_path = os.path.join(self.data_dir, self.meta_data.iloc[idx]['mask_path'])
         mask = cv2.imread(mask_path)
+        # Change order of colors from BGR to RGB
         mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
         if self.transform:
             # In the transform from albumentation we pass both the image and the mask together to make sure
@@ -51,8 +53,6 @@ class SatelliteSet(Dataset):
             mask = (mask[..., None] == np.arange(7)).astype(mask.dtype)
             mask = np.transpose(mask, (2, 0, 1))
             mask = torch.tensor(mask).to(torch.float32)
-
-        #image.require_grad = True
 
         return image, mask
     

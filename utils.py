@@ -71,6 +71,8 @@ def get_data_loaders(data_dir, transform, shuffle_dataset, test_split, random_se
                                                 sampler=test_sampler)
     return train_loader, test_loader
 
+# TODO: add parameter for the number of classes in case we need to modify that
+# Right it is a hard coded 7. (used by the metrics)
 def evaluate(model, writer, dataloader, epoch):
     iou_score = 0
     iou = JaccardIndex('multiclass', num_classes=7)
