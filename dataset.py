@@ -34,16 +34,24 @@ class SatelliteSet(Dataset):
         # Read image
         img_path = os.path.join(self.data_dir, self.meta_data.iloc[idx]['sat_image_path'])
         image = cv2.imread(img_path)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         # Read target mask
         mask_path = os.path.join(self.data_dir, self.meta_data.iloc[idx]['mask_path'])
         mask = cv2.imread(mask_path)
+        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
         if self.transform:
             # In the transform from albumentation we pass both the image and the mask together to make sure
             # they undergo the same transformation, e.g. this ensure both have the same random crop
             transformed = self.transform(image = image, mask = mask)
             image = transformed['image'].to(torch.float32)
-            mask = transformed['mask'].to(torch.float32)
+            mask = transformed['mask']
             mask = torch.tensor(np.apply_along_axis(lambda k: self.class_dict[tuple(k)], 2, mask))
+            mask_onehot = torch.zeros((len(self.class_dict), mask.shape[0], mask.shape[1]))
+            for w,h in mask.nonzero(as_tuple=False):
+                mask_onehot[mask[w,h], w, h] = 1
+            mask = mask_onehot.to(torch.float32)
+
+        #image.require_grad = True
 
         return image, mask
     
