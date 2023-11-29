@@ -45,11 +45,12 @@ class SatelliteSet(Dataset):
             transformed = self.transform(image = image, mask = mask)
             image = transformed['image'].to(torch.float32)
             mask = transformed['mask']
-            mask = torch.tensor(np.apply_along_axis(lambda k: self.class_dict[tuple(k)], 2, mask))
-            mask_onehot = torch.zeros((len(self.class_dict), mask.shape[0], mask.shape[1]))
-            for w,h in mask.nonzero(as_tuple=False):
-                mask_onehot[mask[w,h], w, h] = 1
-            mask = mask_onehot.to(torch.float32)
+            # Mask will be a one hot encoded matrix with dimensions 7 x 256 x 256
+            # First dimenion corresponds to class label
+            mask = np.apply_along_axis(lambda k: self.class_dict[tuple(k)], 2, mask)
+            mask = (mask[..., None] == np.arange(7)).astype(mask.dtype)
+            mask = np.transpose(mask, (2, 0, 1))
+            mask = torch.tensor(mask).to(torch.float32)
 
         #image.require_grad = True
 
