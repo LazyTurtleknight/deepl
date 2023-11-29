@@ -7,6 +7,8 @@ import pandas as pd
 from PIL import Image
 from dataset import SatelliteSet
 from torch.utils.data import SubsetRandomSampler
+from torchmetrics import JaccardIndex
+from torchmetrics.classification import Dice
 
 def plot(sample, data_dir):
 
@@ -71,24 +73,30 @@ def get_data_loaders(data_dir, transform, shuffle_dataset, test_split, random_se
 
 def evaluate(model, writer, dataloader, epoch):
     iou_score = 0
+    iou = JaccardIndex('multiclass', num_classes=7)
     dice_score = 0
+    dice = Dice(num_classes=7)
     for x, y in dataloader:
         pred = model(x)
+        pred = torch.argmax(pred, 1)
+        y = torch.argmax(y, 1)
         # Calculate IOU
-        iou_score += get_iou_score(pred, y)
+        iou_score += iou(pred, y)
         # Calculate DICE
-        dice_score += get_dice_score(pred, y)
+        dice_score += dice(pred, y)
 
     writer.add_scalar('DICE Score', dice_score / len(dataloader), epoch)
     writer.add_scalar('IOU Score', iou_score / len(dataloader), epoch)
 
 def get_iou_score(pred, y):
+    iou_score = 0
     intersection = np.logical_and(y, pred)
     union = np.logical_or(y, pred)
     iou_score += np.sum(intersection) / np.sum(union)
     return iou_score
 
 def get_dice_score(pred, y):
+    dice_score = 0
     intersection = np.logical_and(y, pred)
     dice_score += np.sum(intersection) / (y.size() + pred.size())
     return dice_score
