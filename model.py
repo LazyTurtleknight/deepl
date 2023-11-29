@@ -45,7 +45,7 @@ class UpConv(TwoConv):
 
     def forward(self, x, skip):
         u = self.upsampling(x)
-        u = torch.cat([u, skip], 0)
+        u = torch.cat([u, skip], 1)
         c = super().forward(u)
         return c, u
 
